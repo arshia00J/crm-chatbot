@@ -4,7 +4,8 @@ export interface LoginPayload {
 }
 
 export interface LoginResponse {
-  token: string;
+  access_token: string;
+  token_type: string;
 }
 
 function toFormUrlEncoded(payload: LoginPayload): string {
@@ -27,10 +28,9 @@ export async function login(payload: LoginPayload): Promise<LoginResponse> {
     });
 
     if (!res.ok) {
-    const errorData = await res.json();
-    const errorMsg =
-        errorData.detail?.[0]?.msg || errorData.message || "Login failed";
-    throw new Error(errorMsg);
+        const errorData = await res.json();
+        const errorMsg = errorData.detail?.[0]?.msg || "Login failed";
+        throw new Error(errorMsg);
     }
 
 

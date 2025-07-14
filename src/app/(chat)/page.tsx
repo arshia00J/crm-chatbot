@@ -1,24 +1,38 @@
-// /app/chat/[id]/page.tsx
 'use client'
 
-import Sidebar from '@/components/Sidebar'
+// import { useEffect } from 'react'
+// import { useRouter } from 'next/navigation'
+// import { fetchSessions } from '@/app/(chat)/server'
+import { useAuthStore } from '@/stores/useAuthStore' // adjust path as needed
 
-interface ChatPageProps {
-  params: {
-    id: string
-  }
-}
+export default function ChatSessionPage() {
+  // const router = useRouter()
+   const token = useAuthStore((state) => state.access_token)
 
-export default function ChatSessionPage({ params }: ChatPageProps) {
-  const sessionId = params.id
+  // useEffect(() => {
+  //   const validateToken = async () => {
+  //     if (!token) {
+  //       alert('No token found. Please login.')
+  //       router.push('/login')
+  //       return
+  //     }
+
+  //     try {
+  //       await fetchSessions(token)
+  //       // valid token, do nothing
+  //     } catch (err: any) {
+  //       alert(err.message || 'Invalid token')
+  //       router.push('/login')
+  //     }
+  //   }
+
+  //   validateToken()
+  // }, [token, router]) 
 
   return (
     <div className="flex">
-      <Sidebar onSelectSession={() => {}} />
-
       <main className="flex-1 p-4">
-        <h2 className="text-xl font-bold mb-2">Chat Session: {sessionId}</h2>
-        <p>This is where chat messages for session <strong>{sessionId}</strong> would be displayed.</p>
+        <h1 className="text-2xl font-semibold">Click on + to new chat {token}</h1>
       </main>
     </div>
   )

@@ -1,58 +1,68 @@
 export interface LoginPayload {
-    username: string;
-    password: string;
+  username: string;
+  password: string;
 }
 
 export interface LoginResponse {
-    token: string;
+  token: string;
 }
-// Login 
-export async function login(payload :LoginPayload): Promise<LoginResponse> {
 
-    try {
-        const res = await fetch("/signin", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload)
-        });
+function toFormUrlEncoded(payload: LoginPayload): string {
+  const form = new URLSearchParams();
+  form.append("grant_type", "password");
+  form.append("username", payload.username);
+  form.append("password", payload.password);
+  return form.toString();
+}
 
-        if (!res.ok) {
-            const errorData = await res.json();
-            throw new Error(errorData.message || "Login failed");
-        }
+// LOGIN
+export async function login(payload: LoginPayload): Promise<LoginResponse> {
+  try {
+    const res = await fetch("http://127.0.0.1:8000/signin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: toFormUrlEncoded(payload),
+    });
 
-        const data: LoginResponse = await res.json();
-        return data;
-    } catch (err) {
-        throw err
+    if (!res.ok) {
+    const errorData = await res.json();
+    const errorMsg =
+        errorData.detail?.[0]?.msg || errorData.message || "Login failed";
+    throw new Error(errorMsg);
     }
-    
+
+
+    const data: LoginResponse = await res.json();
+    return data;
+  } catch (err) {
+    throw err;
+  }
 }
 
-// Signup
-export async function signup(payload: LoginPayload): Promise<{ message: string}> {
 
-    try {
-        const res = await fetch("/signup", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-        });
+// SIGNUP
+export async function signup(payload: LoginPayload): Promise<{ message: string }> {
+  try {
+    const res = await fetch("http://127.0.0.1:8000/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: toFormUrlEncoded(payload),
+    });
 
-        if (!res.ok) {
-            const errorData = await res.json();
-            throw new Error(errorData.message || "Signup failed");
-        }
-
-        const data = await res.json();
-        return data;
-    } catch (err) {
-        throw err;
+    if (!res.ok) {
+      const errorData = await res.json();
+      const errorMsg =
+        errorData.detail?.[0]?.msg || errorData.message || "Signup failed";
+      throw new Error(errorMsg);
     }
-    
-}
 
+    const message: string = await res.json();
+    return { message };
+  } catch (err) {
+    throw err;
+  }
+}

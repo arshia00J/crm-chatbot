@@ -13,7 +13,7 @@ export default function Signup() {
   const handleSignup = async () => {
     try {
       await signup({ username: email, password });
-      alert('Signup successful!');
+      alert('Signup successfull');
       router.push('/login');
     } catch (err) {
       console.error('Signup error:', err);
@@ -49,7 +49,7 @@ export default function Signup() {
 
           <button
             onClick={handleSignup}
-            className="flex flex-row rounded-full w-[111px] h-[48px] bg-[#4F46E5] items-center justify-center gap-[10px]"
+            className="flex cursor-pointer flex-row rounded-full w-[111px] h-[48px] bg-[#4F46E5] items-center justify-center gap-[10px]"
           >
             <p className="text-[16px] font-bold text-white">Send</p>
             <SendRoundedIcon style={{ color: 'white' }} />

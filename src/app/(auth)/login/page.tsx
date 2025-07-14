@@ -19,9 +19,10 @@ export default function Login(){
       router.push('/');
     } catch (err) {
       console.error('Login error:', err);
-      alert('Login failed');
+      alert(err || 'Login failed');
     }
   };
+
 
 
   

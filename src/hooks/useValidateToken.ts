@@ -24,8 +24,12 @@ export function useValidateToken() {
       try {
         await fetchSessions(token)
         setIsValidating(false)
-      } catch (err: any) {
-        alert(err.message || 'Invalid token')
+      } catch (err) {
+        if (err instanceof Error) {
+          alert(err.message)
+        } else {
+          alert('Invalid token')
+        }
         router.push('/login')
       }
     }

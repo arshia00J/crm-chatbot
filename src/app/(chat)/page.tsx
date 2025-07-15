@@ -4,7 +4,7 @@ import { useValidateToken } from '@/hooks/useValidateToken'
 import UserMenu from '@/components/UserMenu';
 
 export default function ChatSessionPage() {
-  const { token, isValidating } = useValidateToken()
+  const { isValidating } = useValidateToken()
 
   if (isValidating) {
     return <div className="p-4">Validating token...</div>

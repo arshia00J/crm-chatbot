@@ -15,8 +15,12 @@ const handleSignup = async () => {
     const res = await signup({ username: email, password });
     alert(res.message);
     router.push('/login');
-  } catch (err: any) {
-    alert(err.message || 'Signup failed');
+  } catch (err) {
+    if (err instanceof Error) {
+      alert(err.message);
+    } else {
+      alert('Signup failed');
+    }
   }
 };
 

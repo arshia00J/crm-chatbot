@@ -12,18 +12,19 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const setToken = useAuthStore((state) => state.setToken)
+  const setToken = useAuthStore((state) => state.setToken);
+  const setEmailGlobal = useAuthStore((state) => state.setEmail);
 
   const handleLogin = async () => {
     try {
-      const data = await login({ username: email, password })
-      setToken(data.access_token) 
-      router.push('/')
+      const data = await login({ username: email, password });
+      setToken(data.access_token);
+      setEmailGlobal(email);
+      router.push('/');
     } catch (err) {
-      alert((err as Error).message || 'Login failed')
+      alert((err as Error).message);
     }
-  }
-
+  };
 
   return (
     <div className="flex items-center justify-center h-screen">

@@ -55,14 +55,13 @@ export async function signup(payload: LoginPayload): Promise<{ message: string }
 
     if (!res.ok) {
       const errorData = await res.json();
-      const errorMsg =
-        errorData.detail?.[0]?.msg || errorData.message || "Signup failed";
-      throw new Error(errorMsg);
+      throw new Error(errorData.detail || "Signup failed");
     }
 
-    const message: string = await res.json();
-    return { message };
+    const data = await res.json();
+    return { message: data.message };
   } catch (err) {
     throw err;
   }
 }
+

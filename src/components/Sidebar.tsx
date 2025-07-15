@@ -2,6 +2,8 @@
 
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useChatStore } from '@/stores/useChatStore'
+
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
@@ -14,7 +16,9 @@ type ChatSession = {
 
 export default function Sidebar() {
   const [sessions, setSessions] = useState<ChatSession[]>([])
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
+  const activeSessionId = useChatStore((state) => state.activeSessionId)
+  const setActiveSessionId = useChatStore((state) => state.setActiveSessionId)
+
   const [isOpen, setIsOpen] = useState(true)
 
   const router = useRouter()

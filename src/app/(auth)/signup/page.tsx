@@ -10,16 +10,16 @@ export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSignup = async () => {
-    try {
-      await signup({ username: email, password });
-      alert('Signup successfull');
-      router.push('/login');
-    } catch (err) {
-      console.error('Signup error:', err);
-      alert('Signup failed');
-    }
-  };
+const handleSignup = async () => {
+  try {
+    const res = await signup({ username: email, password });
+    alert(res.message);
+    router.push('/login');
+  } catch (err: any) {
+    alert(err.message || 'Signup failed');
+  }
+};
+
 
   return (
     <div className="flex items-center justify-center h-screen">

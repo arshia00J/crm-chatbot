@@ -1,39 +1,33 @@
 'use client'
 
-// import { useEffect } from 'react'
-// import { useRouter } from 'next/navigation'
-// import { fetchSessions } from '@/app/(chat)/server'
-import { useAuthStore } from '@/stores/useAuthStore' // adjust path as needed
+import { useValidateToken } from '@/hooks/useValidateToken'
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { useAuthStore } from '@/stores/useAuthStore'
 
 export default function ChatSessionPage() {
-  // const router = useRouter()
-   const token = useAuthStore((state) => state.access_token)
+  const { token, isValidating } = useValidateToken()
+  const email = useAuthStore((state) => state.email)
 
-  // useEffect(() => {
-  //   const validateToken = async () => {
-  //     if (!token) {
-  //       alert('No token found. Please login.')
-  //       router.push('/login')
-  //       return
-  //     }
-
-  //     try {
-  //       await fetchSessions(token)
-  //       // valid token, do nothing
-  //     } catch (err: any) {
-  //       alert(err.message || 'Invalid token')
-  //       router.push('/login')
-  //     }
-  //   }
-
-  //   validateToken()
-  // }, [token, router]) 
+  if (isValidating) {
+    return <div className="p-4">Validating token...</div>
+  }
 
   return (
-    <div className="flex">
-      <main className="flex-1 p-4">
-        <h1 className="text-2xl font-semibold">Click on + to new chat {token}</h1>
-      </main>
+    <div>
+      {/* Header of Chat */}
+      <div className='h-[96px] w-full flex p-6 justify-between border-b-1 border-[#E2E8F0]'>
+        <h2 className='text-[#1E293B] text-[30px] font-extrabold'>Welcome to CRM chatbot</h2>
+        <div className='flex flex-row justify-between items-center gap-4'>
+          <div className='flex gap-3 items-center'>
+            <AccountCircleIcon />
+            <p className='text-[#1E293B] font-bold text-[16px]'>
+              {email ?? 'Guest'}
+            </p>
+          </div>
+          <KeyboardArrowDownRoundedIcon />
+        </div>
+      </div>
     </div>
   )
 }

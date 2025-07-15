@@ -19,6 +19,7 @@ export async function fetchSessions(token: string): Promise<any[]> {
 interface agentPrompt {
   query: string;
   session_id: string;
+  token: string;
 }
 
 interface agentResponse {
@@ -31,7 +32,7 @@ export async function askAgent(params: agentPrompt): Promise<agentResponse> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      'Authorization': `Bearer ${params.token}`,
     },
     body: JSON.stringify(params),
   });
@@ -43,3 +44,9 @@ export async function askAgent(params: agentPrompt): Promise<agentResponse> {
 
   return await res.json();
 }
+
+
+
+
+
+

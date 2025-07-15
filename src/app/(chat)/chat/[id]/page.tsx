@@ -1,23 +1,60 @@
 'use client'
 
+import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useValidateToken } from '@/hooks/useValidateToken'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { useChatStore } from '@/stores/useChatStore'
+import { askAgent } from '@/app/(chat)/server'
+import UserMenu from '@/components/UserMenu'
 
-
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import AttachFileRoundedIcon from '@mui/icons-material/AttachFileRounded';
 import MicNoneRoundedIcon from '@mui/icons-material/MicNoneRounded';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 
+import ClientMessage from '@/components/ClientMessage'
+import AgentMessage from '@/components/AgentMessage'
+
 export default function ChatPage() {
   const params = useParams()
   const session_id = params?.id as string
-
+  const token = useAuthStore((state) => state.access_token)
   const { isValidating } = useValidateToken()
-  const email = useAuthStore((state) => state.email)
+
+  const [input, setInput] = useState('')
+  const [messages, setMessages] = useState<
+    { sender: 'user' | 'agent'; text: string; isLoading?: boolean }[]
+  >([])
+
+  const handleSend = async () => {
+    if (!input.trim()) return
+
+    const userMessage = { sender: 'user' as const, text: input }
+    const loadingAgent = { sender: 'agent' as const, text: '', isLoading: true }
+
+    setMessages((prev) => [...prev, userMessage, loadingAgent])
+    setInput('')
+
+    try {
+      const response = await askAgent({
+        query: input,
+        session_id,
+        token: token || '',
+      })
+
+      setMessages((prev) => {
+        const updated = [...prev]
+        updated[updated.length - 1] = {
+          sender: 'agent',
+          text: response.response,
+          isLoading: false,
+        }
+        return updated
+      })
+    } catch (err) {
+      alert((err as Error).message)
+      setMessages((prev) => prev.slice(0, -1))
+    }
+  }
 
   if (isValidating) {
     return <div className="p-6 text-gray-500">Validating token...</div>
@@ -25,41 +62,48 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-screen">
-      {/* Header of Chat */}
-      <div className='h-[96px] w-full flex p-6 justify-between border-b border-[#E2E8F0]'>
-        <h2 className='text-[#1E293B] text-[30px] font-extrabold'>Session title</h2>
-        <div className='flex flex-row items-center gap-4'>
-          <div className='flex gap-3 items-center'>
-            <AccountCircleIcon />
-            <p className='text-[#1E293B] font-bold text-[16px]'>
-              {email ?? 'Guest'}
-            </p>
-          </div>
-          <KeyboardArrowDownRoundedIcon />
-        </div>
+      {/* Header */}
+
+      <div className="h-[96px] w-full flex p-6 justify-between items-center border-b border-[#E2E8F0]">
+        <h2 className="text-[#1E293B] text-[30px] font-extrabold">Session title</h2>
+        <UserMenu />
       </div>
 
-      {/* Main chat content */}
-      <div className="flex-1 overflow-y-auto p-8">
-        <div className="text-gray-500">Chat messages go here...</div>
+
+
+      {/* Chat messages */}
+      <div className="flex-1 overflow-y-auto px-[96px] py-6 gap-3 flex flex-col">
+        {messages.map((msg, idx) =>
+          msg.sender === 'user' ? (
+            <ClientMessage key={idx} message={msg.text} />
+          ) : (
+            <AgentMessage key={idx} message={msg.text} isLoading={msg.isLoading ?? false} />
+          )
+        )}
       </div>
 
       {/* Chat Input */}
-      <div className="px-8 py-6 ">
+      <div className="px-8 py-6">
         <div className="flex flex-col w-full justify-between rounded-[24px] shadow-sm border border-[#E2E8F0] p-4 bg-white">
           <input
             type="text"
-            placeholder="Message to slothpilot..."
+            placeholder="Message to chatbot..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleSend() }}
             className="flex-1 outline-none text-gray-700 text-sm bg-transparent mb-3"
           />
           <div className="flex justify-end gap-3">
-            <button className="text-gray-400 hover:text-gray-600">
+            <button className="text-gray-400 hover:text-gray-600" disabled>
               <AttachFileRoundedIcon />
             </button>
-            <button className="text-gray-400 hover:text-gray-600">
+            <button className="text-gray-400 hover:text-gray-600" disabled>
               <MicNoneRoundedIcon />
             </button>
-            <button className="ml-2 px-4 py-2 bg-[#4F46E5] text-white text-sm rounded-full flex items-center gap-1">
+            <button
+              onClick={handleSend}
+              className="ml-2 px-4 py-2 bg-[#4F46E5] text-white text-sm rounded-full flex items-center gap-2"
+            >
               <span>Send</span>
               <SendRoundedIcon />
             </button>

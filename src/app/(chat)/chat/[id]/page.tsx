@@ -61,7 +61,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
 
       <div className="h-[96px] w-full flex p-6 justify-between items-center border-b border-[#E2E8F0]">

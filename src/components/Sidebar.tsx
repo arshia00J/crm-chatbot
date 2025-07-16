@@ -3,37 +3,72 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useChatStore } from '@/stores/useChatStore'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { deleteSession } from '@/app/(chat)/server'
+import useSidebarStore from '@/stores/useSidebarStore';
 
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
+import { fetchSessions } from '@/app/(chat)/server'
+
+interface SidebarProps {
+  onChatClick?: () => void;
+}
 
 type ChatSession = {
   id: string
   title: string
 }
 
-export default function Sidebar() {
+export default function Sidebar({ onChatClick }: SidebarProps) {
+
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const activeSessionId = useChatStore((state) => state.activeSessionId)
   const setActiveSessionId = useChatStore((state) => state.setActiveSessionId)
+  const token = useAuthStore((state) => state.access_token)
 
   const [isOpen, setIsOpen] = useState(true)
-
   const router = useRouter()
 
   useEffect(() => {
-    const stored = localStorage.getItem('chat_sessions')
-    if (stored) {
-      const parsed: ChatSession[] = JSON.parse(stored)
-      setSessions(parsed)
+    const loadSessions = async () => {
+      if (!token) return;
+      try {
+        const sessions = await fetchSessions(token)
+        const mapped = sessions.map(session => ({
+          id: session.session_id,
+          title: session.session_id
+        }))
+        setSessions(mapped)
+      } catch (error) {
+        console.error('Error loading sessions:', error)
+      }
     }
-  }, [])
 
-  useEffect(() => {
-    localStorage.setItem('chat_sessions', JSON.stringify(sessions))
-  }, [sessions])
+    loadSessions()
+  }, [token])
+
+  const handleDelete = async (sessionIdToDelete: string) => {
+  if (!token) return
+  try {
+    await deleteSession(token, sessionIdToDelete)
+    setSessions(prev => prev.filter(s => s.id !== sessionIdToDelete))
+
+    // Redirect if active session is deleted
+    if (activeSessionId === sessionIdToDelete) {
+      setActiveSessionId(null)
+      router.push('/')
+    }
+  } catch (err) {
+    console.error('Failed to delete session:', err)
+    alert((err as Error).message)
+  }
+}
+
+
+
 
   const createSession = () => {
     const newSession: ChatSession = {
@@ -46,14 +81,15 @@ export default function Sidebar() {
     router.push(`/chat/${newSession.id}`)
   }
 
-  const handleSelect = (session: ChatSession) => {
-    setActiveSessionId(session.id)
-    router.push(`/chat/${session.id}`)
-}
+const handleSelect = (session: ChatSession) => {
+  setActiveSessionId(session.id);
+  if (onChatClick) onChatClick();
+  router.push(`/chat/${session.id}`);
+};
 
 
   return (
-    <aside className="w-[360px] bg-white h-screen overflow-y-auto">
+    <aside className="lg:w-[360px] w-full bg-white h-screen overflow-y-auto">
       <div className="flex px-6 py-2.5 justify-between items-center border-b-1 border-[#E2E8F0]">
         <h2 className="text-lg font-semibold">CRM chatbot</h2>
         <button onClick={createSession} className="text-4xl cursor-pointer">
@@ -88,9 +124,16 @@ export default function Sidebar() {
               <span className={`text-[14px] font-medium text-[#94A3B8] ${activeSessionId === session.id ? "hidden" : ""}`}>2m ago</span>
               <div className={`${activeSessionId === session.id ? "flex flex-row justify-between w-[88px]" : "hidden"}`}>
                 <ModeEditOutlineOutlinedIcon className='text-[#94A3B8]' />
-                <DeleteOutlineRoundedIcon className='text-[#F43F5E]' />
+                <DeleteOutlineRoundedIcon
+                  className='text-[#F43F5E] cursor-pointer'
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleDelete(session.id)
+                  }}
+                />
                 <MoreHorizRoundedIcon className='text-[#94A3B8]' />
               </div>
+
             </div>
           ))}
       </div>

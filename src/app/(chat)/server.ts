@@ -1,4 +1,10 @@
-export async function fetchSessions(token: string): Promise<any[]> {
+export interface ChatSession {
+  session_id: string
+  chat_history: [string, string][]
+  user_id: string
+}
+
+export async function fetchSessions(token: string): Promise<ChatSession[]> {
   const res = await fetch('http://127.0.0.1:8000/sessions', {
     method: 'GET',
     headers: {
@@ -8,11 +14,33 @@ export async function fetchSessions(token: string): Promise<any[]> {
   });
 
   if (!res.ok) {
-    const errorData = await res.json();
+    const errorData = await res.json().catch(() => ({}))
     throw new Error(errorData.detail || 'Failed to fetch sessions');
   }
 
-  return await res.json();
+  const sessions: ChatSession[] = await res.json();
+  return sessions;
+}
+
+
+export async function loadChatHistory(token: string, session_id: string): Promise<ChatSession>{
+  const res = await fetch(`http://127.0.0.1:8000/sessions/${session_id}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}))
+    throw new Error(errorData.detail || 'Failed to fetch chats history');
+  }
+
+  const sessions: ChatSession = await res.json();
+  return sessions;
+
 }
 
 
@@ -47,6 +75,23 @@ export async function askAgent(params: agentPrompt): Promise<agentResponse> {
 
 
 
+export async function deleteSession(token: string, session_id: string): Promise<string> {
+  const res = await fetch(`http://127.0.0.1:8000/sessions/${session_id}`, {
 
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+
+  });
+
+  if(!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.detail || 'Failed to delete session')
+  }
+  
+  return JSON.stringify(res)
+}
 
 

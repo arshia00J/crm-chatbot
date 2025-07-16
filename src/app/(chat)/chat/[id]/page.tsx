@@ -1,16 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useValidateToken } from '@/hooks/useValidateToken'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { askAgent } from '@/app/(chat)/server'
+import { askAgent, loadChatHistory } from '@/app/(chat)/server'
+
 import UserMenu from '@/components/UserMenu'
-
-import AttachFileRoundedIcon from '@mui/icons-material/AttachFileRounded';
-import MicNoneRoundedIcon from '@mui/icons-material/MicNoneRounded';
-import SendRoundedIcon from '@mui/icons-material/SendRounded';
-
+import AttachFileRoundedIcon from '@mui/icons-material/AttachFileRounded'
+import MicNoneRoundedIcon from '@mui/icons-material/MicNoneRounded'
+import SendRoundedIcon from '@mui/icons-material/SendRounded'
 import ClientMessage from '@/components/ClientMessage'
 import AgentMessage from '@/components/AgentMessage'
 
@@ -24,6 +23,29 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<
     { sender: 'user' | 'agent'; text: string; isLoading?: boolean }[]
   >([])
+  const [sessionTitle, setSessionTitle] = useState<string>('Session')
+
+  // Load existing chat history
+  useEffect(() => {
+    const fetchChat = async () => {
+      if (!token || !session_id) return
+
+      try {
+        const chat = await loadChatHistory(token, session_id)
+        const history = chat.chat_history.map(([userText, agentText]) => [
+          { sender: 'user' as const, text: userText },
+          { sender: 'agent' as const, text: agentText },
+        ]).flat()
+
+        setMessages(history)
+        setSessionTitle(chat.session_id)
+      } catch (err) {
+        console.error('Failed to load chat history:', err)
+      }
+    }
+
+    fetchChat()
+  }, [token, session_id])
 
   const handleSend = async () => {
     if (!input.trim()) return
@@ -63,16 +85,13 @@ export default function ChatPage() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-
       <div className="h-[96px] w-full flex p-6 justify-between items-center border-b border-[#E2E8F0]">
-        <h2 className="text-[#1E293B] text-[30px] font-extrabold">Session title</h2>
+        <h2 className="text-[#1E293B] text-[30px] font-extrabold">{sessionTitle}</h2>
         <UserMenu />
       </div>
 
-
-
       {/* Chat messages */}
-      <div className="flex-1 overflow-y-auto px-[96px] py-6 gap-3 flex flex-col">
+      <div className="flex-1 overflow-y-auto md:px-[96px] px-[40px] py-6 gap-3 flex flex-col">
         {messages.map((msg, idx) =>
           msg.sender === 'user' ? (
             <ClientMessage key={idx} message={msg.text} />

@@ -87,7 +87,10 @@ export default function ChatPage() {
       {/* Header */}
       <div className="h-[96px] w-full flex p-6 justify-between items-center border-b border-[#E2E8F0]">
         <h2 className="text-[#1E293B] text-[30px] font-extrabold">{sessionTitle}</h2>
-        <UserMenu />
+        <div className='hidden lg:flex'>
+          <UserMenu/>
+        </div>
+        
       </div>
 
       {/* Chat messages */}

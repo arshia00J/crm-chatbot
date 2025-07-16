@@ -5,13 +5,13 @@ import { useEffect, useState } from 'react'
 import { useChatStore } from '@/stores/useChatStore'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { deleteSession } from '@/app/(chat)/server'
-import useSidebarStore from '@/stores/useSidebarStore';
 
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
 import { fetchSessions } from '@/app/(chat)/server'
+import UserMenu from '@/components/UserMenu'
 
 interface SidebarProps {
   onChatClick?: () => void;
@@ -92,9 +92,13 @@ const handleSelect = (session: ChatSession) => {
     <aside className="lg:w-[360px] w-full bg-white h-screen overflow-y-auto">
       <div className="flex px-6 py-2.5 justify-between items-center border-b-1 border-[#E2E8F0]">
         <h2 className="text-lg font-semibold">CRM chatbot</h2>
-        <button onClick={createSession} className="text-4xl cursor-pointer">
-          +
-        </button>
+        <div className='flex items-center gap-5'>
+          <button onClick={createSession} className="text-4xl cursor-pointer">
+            +
+          </button>
+          <UserMenu/>
+        </div>
+
       </div>
 
       <div className="flex flex-col py-4">

@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 
 interface ChatState {
   activeSessionId: string | null
-  setActiveSessionId: (id: string) => void
+  setActiveSessionId: (id: string | null) => void
 }
 
 export const useChatStore = create<ChatState>()(

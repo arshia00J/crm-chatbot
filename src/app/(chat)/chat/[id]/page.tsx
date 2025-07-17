@@ -109,6 +109,7 @@ export default function ChatPage() {
         <div className="flex flex-col w-full justify-between rounded-[24px] shadow-sm border border-[#E2E8F0] p-4 bg-white">
           <input
             type="text"
+            dir='rtl'
             placeholder="Message to chatbot..."
             value={input}
             onChange={(e) => setInput(e.target.value)}

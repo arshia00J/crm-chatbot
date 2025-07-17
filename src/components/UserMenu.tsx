@@ -27,7 +27,7 @@ export default function UserMenu() {
   }
 
   return (
-    <div className=''>
+    <div >
       <div
         onClick={handleOpen}
         className="flex flex-row items-center gap-4 cursor-pointer"

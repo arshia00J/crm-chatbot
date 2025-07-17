@@ -96,7 +96,9 @@ const handleSelect = (session: ChatSession) => {
           <button onClick={createSession} className="text-4xl cursor-pointer">
             +
           </button>
-          <UserMenu/>
+          <div className='lg:hidden'> 
+           <UserMenu/>
+          </div>
         </div>
 
       </div>

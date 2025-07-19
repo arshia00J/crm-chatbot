@@ -7,6 +7,7 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { deleteSession } from '@/app/(chat)/server'
 import { getTitle } from '@/app/(chat)/server';
 
+import AddBoxRoundedIcon from '@mui/icons-material/AddBoxRounded';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
@@ -104,10 +105,10 @@ const handleSelect = (session: ChatSession) => {
   return (
     <aside className="lg:w-[360px] w-full bg-white h-screen overflow-y-auto">
       <div className="flex px-6 py-2.5 justify-between items-center border-b-1 border-[#E2E8F0]">
-        <h2 className="text-lg font-semibold">CRM chatbot</h2>
+        <h2 className="text-lg font-semibold text-[#1E293B]">CRM chatbot</h2>
         <div className='flex items-center gap-5'>
-          <button onClick={createSession} className="text-4xl cursor-pointer">
-            +
+          <button onClick={createSession} className="cursor-pointer text-[#1E293B]">
+            <AddBoxRoundedIcon/>
           </button>
           <div className='lg:hidden'> 
            <UserMenu/>
@@ -139,7 +140,8 @@ const handleSelect = (session: ChatSession) => {
               `}
               lang='fa'
             >
-              <p className='truncate' >{session.title}</p>
+                <p className='truncate' dir='rtl' >{session.title}</p>
+
 
               <span className={`text-[14px] font-medium text-[#94A3B8] ${activeSessionId === session.session_id ? "hidden" : ""}`}>2m ago</span>
               <div className={`${activeSessionId === session.session_id ? "flex flex-row justify-between w-[88px]" : "hidden"}`}>

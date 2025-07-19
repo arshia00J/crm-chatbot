@@ -32,7 +32,7 @@ export default function UserMenu() {
         onClick={handleOpen}
         className="flex flex-row items-center gap-4 cursor-pointer"
       >
-        <div className="flex gap-3 items-center">
+        <div className="flex gap-3 items-center text-[#1E293B]">
           <AccountCircleIcon />
           <p className="text-[#1E293B] font-bold text-[16px]">
             {email ?? 'Guest'}

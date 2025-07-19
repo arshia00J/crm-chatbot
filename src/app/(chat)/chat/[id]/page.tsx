@@ -96,8 +96,8 @@ const handleSend = async () => {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="h-[96px] w-full flex p-6 justify-between items-center border-b border-[#E2E8F0]">
-        <h2 className="text-[#1E293B] text-[30px] font-extrabold">{sessionTitle}</h2>
+      <div className="h-[96px] w-full flex p-6 justify-between items-center border-b border-[#E2E8F0]" >
+        <p className="text-[#1E293B] text-[30px] font-extrabold" lang='fa' dir='rtl'>{sessionTitle}</p>
         <div className='hidden lg:flex'>
           <UserMenu/>
         </div>

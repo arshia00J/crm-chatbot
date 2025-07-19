@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { useChatStore } from '@/stores/useChatStore'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { deleteSession } from '@/app/(chat)/server'
+import { getTitle } from '@/app/(chat)/server';
 
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
@@ -18,7 +19,7 @@ interface SidebarProps {
 }
 
 type ChatSession = {
-  id: string
+  session_id: string
   title: string
 }
 
@@ -27,34 +28,45 @@ export default function Sidebar({ onChatClick }: SidebarProps) {
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const activeSessionId = useChatStore((state) => state.activeSessionId)
   const setActiveSessionId = useChatStore((state) => state.setActiveSessionId)
+  const setActiveSessionTitle = useChatStore((state) => state.setActiveSessionTitle)
   const token = useAuthStore((state) => state.access_token)
 
   const [isOpen, setIsOpen] = useState(true)
   const router = useRouter()
 
-  useEffect(() => {
-    const loadSessions = async () => {
-      if (!token) return;
-      try {
-        const sessions = await fetchSessions(token)
-        const mapped = sessions.map(session => ({
-          id: session.session_id,
-          title: session.session_id
-        }))
-        setSessions(mapped)
-      } catch (error) {
-        console.error('Error loading sessions:', error)
-      }
-    }
+useEffect(() => {
+  const loadSessions = async () => {
+    if (!token) return;
+    try {
+      const sessionsData = await fetchSessions(token);
 
-    loadSessions()
-  }, [token])
+      const mapped = await Promise.all(
+        sessionsData.map(async (session: ChatSession) => {
+          const title = await getTitle(token, session.session_id);
+          return {
+            session_id: session.session_id,
+            title,
+          };
+        })
+      );
+
+      setSessions(mapped);
+    } catch (error) {
+      console.error('Error loading sessions:', error);
+    }
+  };
+
+  loadSessions();
+}, [token]);
+
+
+
 
   const handleDelete = async (sessionIdToDelete: string) => {
   if (!token) return
   try {
     await deleteSession(token, sessionIdToDelete)
-    setSessions(prev => prev.filter(s => s.id !== sessionIdToDelete))
+    setSessions(prev => prev.filter(s => s.session_id !== sessionIdToDelete))
 
     if (activeSessionId === sessionIdToDelete) {
       setActiveSessionId(null)
@@ -71,20 +83,22 @@ export default function Sidebar({ onChatClick }: SidebarProps) {
 
   const createSession = () => {
     const newSession: ChatSession = {
-      id: crypto.randomUUID(),
-      title: `Chat ${sessions.length + 1}`,
+      session_id: crypto.randomUUID(),
+      title: `New Chat`,
     }
     const updated = [...sessions, newSession]
     setSessions(updated)
-    setActiveSessionId(newSession.id)
-    router.push(`/chat/${newSession.id}`)
+    setActiveSessionId(newSession.session_id)
+    setActiveSessionTitle('New Chat')
+    router.push(`/chat/${newSession.session_id}`)
   }
 
 const handleSelect = (session: ChatSession) => {
-  setActiveSessionId(session.id);
-  if (onChatClick) onChatClick();
-  router.push(`/chat/${session.id}`);
-};
+  setActiveSessionId(session.session_id)
+  setActiveSessionTitle(session.title)
+  if (onChatClick) onChatClick()
+  router.push(`/chat/${session.session_id}`)
+}
 
 
   return (
@@ -116,24 +130,25 @@ const handleSelect = (session: ChatSession) => {
         {isOpen &&
           sessions.map((session) => (
             <div
-              key={session.id}
+              key={session.session_id}
               onClick={() => handleSelect(session)}
               className={`cursor-pointer flex justify-between items-center px-6 py-4 h-[54px] text-[16px] font-medium text-[#1E293B]
-                ${activeSessionId === session.id
+                ${activeSessionId === session.session_id
                   ? 'bg-[#EEF2FF] border-l-4 pl-5 border-[#4F46E5]'
                   : 'hover:bg-gray-100'}
               `}
+              lang='fa'
             >
-              <p>{session.title}</p>
+              <p className='truncate' >{session.title}</p>
 
-              <span className={`text-[14px] font-medium text-[#94A3B8] ${activeSessionId === session.id ? "hidden" : ""}`}>2m ago</span>
-              <div className={`${activeSessionId === session.id ? "flex flex-row justify-between w-[88px]" : "hidden"}`}>
+              <span className={`text-[14px] font-medium text-[#94A3B8] ${activeSessionId === session.session_id ? "hidden" : ""}`}>2m ago</span>
+              <div className={`${activeSessionId === session.session_id ? "flex flex-row justify-between w-[88px]" : "hidden"}`}>
                 <ModeEditOutlineOutlinedIcon className='text-[#94A3B8]' />
                 <DeleteOutlineRoundedIcon
                   className='text-[#F43F5E] cursor-pointer'
                   onClick={(e) => {
                     e.stopPropagation()
-                    handleDelete(session.id)
+                    handleDelete(session.session_id)
                   }}
                 />
                 <MoreHorizRoundedIcon className='text-[#94A3B8]' />

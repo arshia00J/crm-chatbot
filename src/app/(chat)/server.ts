@@ -1,11 +1,14 @@
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
 export interface ChatSession {
-  session_id: string
-  chat_history: [string, string][]
-  user_id: string
+  title: string;
+  session_id: string;
+  chat_history: [string, string][];
+  user_id: string;
 }
 
 export async function fetchSessions(token: string): Promise<ChatSession[]> {
-  const res = await fetch('http://127.0.0.1:8000/sessions', {
+  const res = await fetch(`${baseUrl}/sessions`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -24,7 +27,7 @@ export async function fetchSessions(token: string): Promise<ChatSession[]> {
 
 
 export async function loadChatHistory(token: string, session_id: string): Promise<ChatSession>{
-  const res = await fetch(`http://127.0.0.1:8000/sessions/${session_id}`, {
+  const res = await fetch(`${baseUrl}/sessions/${session_id}`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -56,7 +59,7 @@ interface agentResponse {
 }
 
 export async function askAgent(params: agentPrompt): Promise<agentResponse> {
-  const res = await fetch('http://127.0.0.1:8000/ask', {
+  const res = await fetch(`${baseUrl}/ask`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -76,7 +79,7 @@ export async function askAgent(params: agentPrompt): Promise<agentResponse> {
 
 
 export async function deleteSession(token: string, session_id: string): Promise<string> {
-  const res = await fetch(`http://127.0.0.1:8000/sessions/${session_id}`, {
+  const res = await fetch(`${baseUrl}/sessions/${session_id}`, {
 
     method: 'DELETE',
     headers: {
@@ -91,7 +94,31 @@ export async function deleteSession(token: string, session_id: string): Promise<
     throw new Error(errorData.detail || 'Failed to delete session')
   }
   
-  return JSON.stringify(res)
+  return res.json()
 }
 
 
+export async function getTitle(token: string, session_id: string): Promise<string> {
+  const res = await fetch(`${baseUrl}/sessions/${session_id}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.detail || 'Failed to get title');
+  }
+
+  const msg = await res.json();
+
+  const totalMessages = msg.chat_history.length;
+
+  if (totalMessages < 2) {
+    return 'New Chat';
+  }
+
+  return msg.title;
+}

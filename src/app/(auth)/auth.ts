@@ -1,3 +1,6 @@
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+
 export interface LoginPayload {
   username: string;
   password: string;
@@ -19,7 +22,7 @@ function toFormUrlEncoded(payload: LoginPayload): string {
 // LOGIN
 export async function login(payload: LoginPayload): Promise<LoginResponse> {
   try {
-    const res = await fetch("http://127.0.0.1:8000/signin", {
+    const res = await fetch(`${baseUrl}/signin`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -45,7 +48,7 @@ export async function login(payload: LoginPayload): Promise<LoginResponse> {
 // SIGNUP
 export async function signup(payload: LoginPayload): Promise<{ message: string }> {
   try {
-    const res = await fetch("http://127.0.0.1:8000/signup", {
+    const res = await fetch(`${baseUrl}/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",

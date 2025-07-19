@@ -1,4 +1,5 @@
 'use client'
+import '@/app/globals.css'
 
 import MobileMenu from '@/components/MobileMenu';
 import Sidebar from '@/components/Sidebar';

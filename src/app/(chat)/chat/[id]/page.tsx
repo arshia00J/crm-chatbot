@@ -31,6 +31,7 @@ export default function ChatPage() {
       if (!token || !session_id) return
 
       try {
+        
         const chat = await loadChatHistory(token, session_id)
         const history = chat.chat_history.map(([userText, agentText]) => [
           { sender: 'user' as const, text: userText },
@@ -110,7 +111,7 @@ export default function ChatPage() {
           <input
             type="text"
             dir='rtl'
-            placeholder="Message to chatbot..."
+            placeholder="پیام خود را وارد کنید..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') handleSend() }}

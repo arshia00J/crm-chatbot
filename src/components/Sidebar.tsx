@@ -56,7 +56,6 @@ export default function Sidebar({ onChatClick }: SidebarProps) {
     await deleteSession(token, sessionIdToDelete)
     setSessions(prev => prev.filter(s => s.id !== sessionIdToDelete))
 
-    // Redirect if active session is deleted
     if (activeSessionId === sessionIdToDelete) {
       setActiveSessionId(null)
       router.push('/')

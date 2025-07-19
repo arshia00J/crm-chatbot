@@ -29,7 +29,7 @@ export async function login(payload: LoginPayload): Promise<LoginResponse> {
 
     if (!res.ok) {
         const errorData = await res.json();
-        const errorMsg = errorData.detail?.[0]?.msg || "Login failed";
+        const errorMsg = errorData.detail || "Login failed";
         throw new Error(errorMsg);
     }
 
